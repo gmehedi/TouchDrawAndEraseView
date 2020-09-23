@@ -34,6 +34,7 @@ open class BaseBrush: NSObject {
     }
     
     internal func initContext() -> CGContext? {
+        print("InitContext")
         let context = UIGraphicsGetCurrentContext()
         context?.setLineCap(.round)
         context?.setLineJoin(.round)

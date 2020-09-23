@@ -45,12 +45,14 @@ open class TouchDrawView: UIView {
   
     // Sets the frames of the subviews
     override open func draw(_ rect: CGRect) {
+        print("Draw")
         image?.draw(in: bounds)
         drawImageView.frame = self.bounds
     }
     
     // MARK: - Public
     open func setBrushType(_ type: BrushType) {
+        print("T1   ", type)
         brushType = type
     }
     
@@ -72,6 +74,7 @@ open class TouchDrawView: UIView {
     }
     
     open func undo() {
+        print("Undo  ")
         if drawUndoManager.canUndo {
             drawUndoManager.undo()
             delegate?.redoEnable(drawUndoManager.canRedo)
@@ -80,6 +83,7 @@ open class TouchDrawView: UIView {
     }
     
     open func redo() {
+         print("Redo  ")
         if drawUndoManager.canRedo {
             drawUndoManager.redo()
             delegate?.undoEnable(drawUndoManager.canUndo)
@@ -88,11 +92,13 @@ open class TouchDrawView: UIView {
     }
     
     open func clear() {
+        print("Clear")
         clearDraw()
     }
     
     // Export drawn image
     open func exportImage() -> UIImage? {
+        print("Wxport Image")
         beginImageContext()
         self.image?.draw(in: self.bounds)
         drawImageView.image?.draw(in: self.bounds)
@@ -102,7 +108,7 @@ open class TouchDrawView: UIView {
     
     // MARK: - Private
     fileprivate func initBrush() -> BaseBrush? {
-        
+        print("initBrush()")
         switch brushType {
         case .pen:
             return PenBrush()
@@ -125,7 +131,7 @@ extension TouchDrawView {
     
     // MARK: - UITouches
     override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+        print("touchesBegan")
         guard let allTouches = event?.allTouches else { return }
         if allTouches.count > 1 { return }
         brush = initBrush()
@@ -141,7 +147,7 @@ extension TouchDrawView {
     }
     
     override open func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+        print("touchesMoved")
         guard let allTouches = event?.allTouches else { return }
         if allTouches.count > 1 { return }
         
@@ -166,6 +172,7 @@ extension TouchDrawView {
     }
     
     override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("Touch End")
         if let brush = self.brush, brush.points.count >= 2 {
             brushStack.append(brush)
             drawUndoManager.registerUndo(withTarget: self, selector: #selector(popBrushStack), object: nil)
@@ -178,16 +185,18 @@ extension TouchDrawView {
     }
     
     override open func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("touchesCancelled")
         touchesEnded(touches, with: event)
     }
     
     @objc fileprivate func popBrushStack() {
+        print("popBrushStack")
         drawUndoManager.registerUndo(withTarget: self, selector: #selector(pushBrushStack(_:)), object: brushStack.popLast())
         redrawInContext()
     }
     
     @objc fileprivate func pushBrushStack(_ brush: BaseBrush) {
-        
+        print("pushBrushStack")
         drawUndoManager.registerUndo(withTarget: self, selector: #selector(popBrushStack), object: nil)
         brushStack.append(brush)
         redrawWithBrush(brush)
@@ -199,7 +208,7 @@ extension TouchDrawView {
     // MARK: - Draw
     
     fileprivate func finishDrawing() {
-        
+        print("finishDrawing()")
         UIGraphicsBeginImageContextWithOptions(bounds.size, false, UIScreen.main.scale)
         prevImage?.draw(in: self.bounds)
         brush?.drawInContext()
@@ -213,18 +222,20 @@ extension TouchDrawView {
     
     /// Begins the image context
     fileprivate func beginImageContext() {
+        print("beginImageContext() ")
         UIGraphicsBeginImageContextWithOptions(frame.size, false, UIScreen.main.scale)
     }
     
     /// Ends image context and sets UIImage to what was on the context
     fileprivate func endImageContext() {
-
+        print("endImageContext()")
         drawImageView.image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
     }
 
     // Redraw image for undo action
     fileprivate func redrawInContext() {
+        print("redrawInContext()")
         beginImageContext()
         for brush in brushStack {
             brush.drawInContext()
@@ -236,6 +247,7 @@ extension TouchDrawView {
     
     // Redraw last line for redo action
     fileprivate func redrawWithBrush(_ brush: BaseBrush) {
+        print("redrawWithBrush")
         beginImageContext()
         drawImageView.image?.draw(in: bounds)
         brush.drawInContext()
@@ -245,6 +257,7 @@ extension TouchDrawView {
     }
     
     fileprivate func clearDraw() {
+        print("clearDraw()")
         brushStack.removeAll()
         beginImageContext()
         endImageContext()
@@ -262,6 +275,7 @@ class DrawImageView: UIView {
     var brush: BaseBrush?
     
     override func draw(_ rect: CGRect) {
+        print("draw(_ rect: CGRect) DrawImageView")
         image?.draw(in: bounds)
         brush?.drawInContext()
     }

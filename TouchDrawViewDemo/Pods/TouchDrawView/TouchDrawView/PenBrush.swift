@@ -11,7 +11,7 @@ import UIKit
 open class PenBrush: BaseBrush {
 
     internal func addPathInBound() -> CGRect {
-        
+        print("addPathInBound()")
         let mid1 = midPoint(p1: previousPoint1!, p2: previousPoint2!)
         let mid2 = midPoint(p1: currentPoint!, p2: previousPoint1!)
         let subPath = CGMutablePath()
